@@ -53,6 +53,11 @@ while (false !== ($file = readdir($handle))) {
     $tm = file_get_contents($file);
     $res = $o->convert($tm);
     file_put_contents($targetFile, $res["page"]);
+    
+    // copy timestamp
+    $mtime = filemtime($file);
+    touch($targetFile, $mtime);
+    
     $mvCommands = $mvCommands . $res["mvCommands"];
   }
 }

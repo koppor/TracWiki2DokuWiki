@@ -117,8 +117,8 @@ class TracWiki2DokuWiki {
   }
 
   private function replace_ignore_CamelCase( $line ) {
-    //$line = preg_replace("^!", "", $line);
-    //$line = preg_replace(" \\!([A-Z])", " $1", $line);
+    $line = preg_replace("/^!/", "", $line);
+    $line = preg_replace("/ !([A-Z])/", " $1", $line);
     return $line;
   }
   
@@ -134,22 +134,9 @@ class TracWiki2DokuWiki {
     $fn = iconv("UTF-8","ASCII//TRANSLIT", $fn);
     return $fn;
   }
-
-  private function replace_link( $line ) {
-    $rAttachmentInQuotes = "/\[attachment:[\"']([^\"]+)[\"'] *([^\]]*)\]/u";
-    if ($count = preg_match_all($rAttachmentInQuotes, $line, $hits)) {
-      for ($i=0; $i<$count; $i++) {
-        $curHit = $hits[1][$i];
-        $curHit = TracWiki2DokuWiki::tracFileName($curHit);
-        $fileName = TracWiki2DokuWiki::tracFileName2DokuWikiFileName($curHit);
-        print("Attachment: $curHit -> $fileName\n");
-        $this->mvCommands = $this->mvCommands . "mv \"$curHit\" $fileName\n";
-        $line = preg_replace($rAttachmentInQuotes, "{{:$fileName?linkonly|$2}}", $line, 1);
-      }
-      return $line;
-    };
-    $rAttachment = "/\[attachment:([^ ]+) ([^\]]+)\]/u";
-    if ($count = preg_match_all($rAttachment, $line, $hits)) {
+  
+  private function workOnAttachment($pattern, &$line) {
+    if ($count = preg_match_all($pattern, $line, $hits)) {
       for ($i=0; $i<$count; $i++) {
         $curHit = $hits[1][$i];
         $curHit = TracWiki2DokuWiki::tracFileName($curHit);
@@ -160,10 +147,18 @@ class TracWiki2DokuWiki {
           print("Attachment: $curHit -> $fileName\n");
           $this->mvCommands = $this->mvCommands . "mv \"$curHit\" $fileName\n";
         }
-        $line = preg_replace($rAttachment, "{{:$fileName?linkonly|$2}}", $line, 1);
+        $line = preg_replace($pattern, "{{:$fileName?linkonly|$2}}", $line, 1);
       }
-      return $line;
+      return true;
     };
+    return false;
+  }
+
+  private function replace_link( $line ) {
+    if ($this->workOnAttachment("/\[attachment:[\"']([^\"]+)[\"'] *([^\]]*)\]/u", $line)) return $line;
+    if ($this->workOnAttachment("/\[attachment:([^ ]+) ([^\]]+)\]/u", $line)) return $line;
+    if ($this->workOnAttachment("/\[attachment:([^ ]+)\]/u", $line)) return $line;
+    // remove [wiki: prefix
     $line = preg_replace("/\[wiki:/", "[", $line);
     // links without description
     $line = preg_replace("/\[([^ \]]+)\]/u", "[[$1]]", $line );
@@ -175,11 +170,13 @@ class TracWiki2DokuWiki {
   }
 
   private function replace_itemlists($line) {
-    return( preg_replace("/( +)\*/", "$1 *", $line) );
+    $line = preg_replace("/^( +)\* /", "$1 * ", $line);
+    $line = preg_replace("/^\* /", "  * ", $line);
+    return $line;
   }
 
   private function replace_numberedlists($line) {
-    return( preg_replace("/^  ?1\. /", "  - ", $line) );
+    return( preg_replace("/^( +)1\. /", "$1 - ", $line) );
   }
 
 }
