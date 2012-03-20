@@ -63,6 +63,14 @@ class TracWiki2DokuWiki {
     //return( preg_replace( "/[\*]*\^[\*]*/", "^", $line ) );
   }
 
+  private function replace_table( $line ) {
+    // insert spaces for empty cells
+    $line = preg_replace("/\|\|\|\|/", "|| ||", $line);
+    
+    // real conversion
+    return( preg_replace( "/\|\|/u", "|", $line ) );
+  }
+
   private function replace_h1( $line ) {
     return( preg_replace( "/^= ([^=]+)=/mu", "====== $1=====", $line ) );
   }
@@ -102,10 +110,6 @@ class TracWiki2DokuWiki {
 
   private function replace_italic( $line ) {
     return( preg_replace( "/''([^']+)''/u", "//$1//", $line ) );
-  }
-
-  private function replace_table( $line ) {
-    return( preg_replace( "/\|\|/u", "|", $line ) );
   }
 
   private function replace_br( $line ) {
