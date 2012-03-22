@@ -71,24 +71,17 @@ class TracWiki2DokuWiki {
     return( preg_replace( "/\|\|/u", "|", $line ) );
   }
 
-  private function replace_h1( $line ) {
-    return( preg_replace( "/^= ([^=]+)=/mu", "====== $1======", $line ) );
-  }
-  
-  private function replace_h2( $line ) {
-    return( preg_replace( "/^== ([^=]+)==/mu", "===== $1=====", $line ) );
-  }
-
-  private function replace_h3( $line ) {
-    return( preg_replace( "/^=== ([^\=]+)===/mu", "==== $1====", $line ) );
-  }
-
-  private function replace_h4( $line ) {
-    return( preg_replace( "/^==== ([^=]+)====/mu", "== $1==", $line ) );
-  }
-
-  private function replace_h5( $line ) {
-    return( preg_replace( "/^===== ([^=]+)=====/mu", "= $1=", $line ) );
+  private function replace_headings( $line ) {
+    $line = preg_replace( "/^= ([^=]+)=/mu", "====== $1======", $line, 1, $count );
+    if ($count>0) return $line;
+    $line = preg_replace( "/^== ([^=]+)==/mu", "===== $1=====", $line, 1, $count );
+    if ($count>0) return $line;
+    $line = preg_replace( "/^=== ([^\=]+)===/mu", "==== $1====", $line, 1, $count );
+    if ($count>0) return $line;
+    $line = preg_replace( "/^==== ([^=]+)====/mu", "== $1==", $line, 1, $count );
+    if ($count>0) return $line;
+    $line = preg_replace( "/^===== ([^=]+)=====/mu", "= $1=", $line, 1, $count );
+    return $line;
   }
 
   private function replace_inline_code( $line ) {
