@@ -72,11 +72,11 @@ class TracWiki2DokuWiki {
   }
 
   private function replace_h1( $line ) {
-    return( preg_replace( "/^= ([^=]+)=/mu", "====== $1=====", $line ) );
+    return( preg_replace( "/^= ([^=]+)=/mu", "====== $1======", $line ) );
   }
   
   private function replace_h2( $line ) {
-    return( preg_replace( "/^== ([^=]+)==/mu", "===== $1====", $line ) );
+    return( preg_replace( "/^== ([^=]+)==/mu", "===== $1=====", $line ) );
   }
 
   private function replace_h3( $line ) {
